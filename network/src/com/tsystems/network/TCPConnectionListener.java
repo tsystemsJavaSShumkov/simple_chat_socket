@@ -2,5 +2,11 @@ package com.tsystems.network;
 
 public interface TCPConnectionListener
 {
-  //add your events here
+  void onConnectionReady(TCPConnection tcpConnection);
+
+  void onReceiveString(TCPConnection tcpConnection, String value);
+
+  void onDisconnect(TCPConnection tcpConnection);
+
+  void onException(TCPConnection tcpConnection, Exception e);
 }

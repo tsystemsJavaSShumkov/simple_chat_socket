@@ -1,6 +1,6 @@
 package com.tsystems.chat.client;
 
-import com.tsystems.network.TCPConnectionFull;
+import com.tsystems.network.TCPConnection;
 import com.tsystems.network.TCPConnectionListener;
 
 import javax.swing.*;
@@ -23,6 +23,8 @@ public class ClientWindow extends JFrame implements ActionListener, TCPConnectio
   private final JTextField fieldNickname = new JTextField("Jhon Doe");
   private final JTextField fieldInput = new JTextField();
 
+  private TCPConnection connection;
+
   private ClientWindow()
   {
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -40,7 +42,14 @@ public class ClientWindow extends JFrame implements ActionListener, TCPConnectio
 
     setVisible(true);
 
-   // create connection here
+    try
+    {
+      connection=new TCPConnection(ClientWindow.this, "localhost", 8189);
+    }
+    catch (IOException e)
+    {
+      printMessage(e.getMessage());
+    }
   }
 
   //to send message
@@ -51,7 +60,7 @@ public class ClientWindow extends JFrame implements ActionListener, TCPConnectio
       return;
     }
     fieldInput.setText(null);
-   //send message here
+    connection.sendString(fieldNickname.getText() + ": " + msg);
   }
 
   //implement methods from listener here
@@ -63,5 +72,25 @@ public class ClientWindow extends JFrame implements ActionListener, TCPConnectio
       log.append(msg + "\n");
       log.setCaretPosition(log.getDocument().getLength());
     });
+  }
+
+  @Override public void onConnectionReady(final TCPConnection tcpConnection)
+  {
+    printMessage("Connection ready...");
+  }
+
+  @Override public void onReceiveString(final TCPConnection tcpConnection, final String value)
+  {
+    printMessage(value);
+  }
+
+  @Override public void onDisconnect(final TCPConnection tcpConnection)
+  {
+    printMessage("Connection closed");
+  }
+
+  @Override public void onException(final TCPConnection tcpConnection, final Exception e)
+  {
+    printMessage("Connection exception: " + e);
   }
 }
